@@ -1,2 +1,2 @@
-draw_text(10,10,vspd)
-draw_text(10,30,grv)
+draw_text(20,20,estado)
+draw_text(20,40,vspd)
