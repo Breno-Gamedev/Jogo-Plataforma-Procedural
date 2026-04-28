@@ -146,6 +146,7 @@ switch estado
 	case "parado":
 	{
 		//comportamento
+		body_state = "parado"
 		
 		//resetando para segurança
 		vspd_min = dft_vspd_min	
@@ -176,7 +177,8 @@ switch estado
 	
 	case "andando":
 	{
-		//comportamento	
+		//comportamento
+		body_state = "andando"
 		
 		//condição de troca
 		//parado
@@ -202,6 +204,8 @@ switch estado
 	case "pulando":
 	{
 		//comportamento		
+		body_state = "pulando"
+		
 		if !pulando
 		{
 			//reset por segurança
@@ -240,6 +244,8 @@ switch estado
 	case "caindo":
 	{
 		//comportamento
+		body_state = "caindo"
+		
 		//coyote
 		coyote_timer -= delta_time / 1000000
 		//coyote wall
@@ -276,6 +282,8 @@ switch estado
 	case "wallclimb":
 	{
 		//comportamento
+		body_state = "wallclimb"
+		
 		//alinhando x
 		for (var i = 1; i<point_count; i++)
 		{
@@ -318,6 +326,7 @@ switch estado
 	case "walljump":
 	{
 		//comportamento
+		body_state = "walljump"
 		
 		//evitando super velocidade
 		//diminuindo minha força caso eu esteja andando pro lado contrário da parede
@@ -409,7 +418,7 @@ for (var i = 1; i < point_count; i++)
 	points[i] = p
 }
 
-
+//colisão
 repeat(10)
 {
 	for (var i = 1; i < point_count; i++)
@@ -437,37 +446,68 @@ repeat(10)
 }
 
 
-if y_temp_update{
-	y_temp = y
-}
-
-if estado = "parado" and move == 0
+//state machine
+switch body_state
 {
-	//ficando pra cima
-	y_temp_update = false
-	var ty = y_temp - seg_len * (point_count-1)
+	case "parado":
+	{
+		//ficando pra cima
+		var ty = y - seg_len * (point_count-1)
+		
+		xx = x
+		yy = lerp(yy,ty,0.1)
+		
+		
+		//colocando o ultimo ponto pro lado
+		var plast = points[point_count-1]
+		
+		var px = xx - seg_len * move_dir
+		var py = y
+		
+		plast._x = lerp(plast._x,px,0.9)
+		plast._y = lerp(plast._y,py,0.1)
+		
+		points[point_count-1] = plast
+		break
+	}
 	
-	xx = x
-	yy = lerp(yy,ty,0.1)
+	case "andando":
+	{
+		//atualizando x e y
+		xx = x
+		yy = y
+		break
+	}
 	
+	case "pulando":
+	{
+		//atualizando x e y
+		xx = x
+		yy = y
+		break
+	}
 	
-	//colocando o ultimo ponto pro lado
-	var plast = points[point_count-1]
-	
-	var px = xx - seg_len * move_dir
-	var py = y_temp
-	
-	plast._x = lerp(plast._x,px,0.9)
-	plast._y = lerp(plast._y,py,0.1)
-	
-	points[point_count-1] = plast
-	
-	
-}
-else
-{
-	xx = x
-	yy = y
-
-	y_temp_update = true	
+	case "caindo":
+	{
+		//atualizando x e y
+		xx = x
+		yy = y	
+		break
+	}
+		
+	case "wallclimb":
+	{
+		//atualizando x e y
+		xx = x
+		yy = y	
+		break
+	}
+		
+	case "walljump":
+	{
+		//atualizando x e y
+		xx = x
+		yy = y	
+		break	
+	}
 }

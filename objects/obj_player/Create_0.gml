@@ -42,6 +42,8 @@ wall_h_power = dft_wall_h_power //força horizontal do walljump
 
 
 //follow leader
+body_state = "parado"
+
 point_count = 4
 seg_len = 7
 
@@ -57,6 +59,3 @@ for (var i = 0; i < point_count; i++)
 
 xx = x //alvo x
 yy = y //alvo y
-
-y_temp = y //valor do y temporario
-y_temp_update = true //se posso atualizar o y temporario
