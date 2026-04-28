@@ -475,7 +475,15 @@ switch body_state
 	{
 		//atualizando x e y
 		xx = x
-		yy = y
+		
+		//acumulando tempo
+		t += delta_time / 1000000
+		var tempo = 0.33 //intervalo da onda (quanto tempo dura um cilco)
+		var amplitude = 2 //amplitude da onda (altura)
+		var base_y = y - amplitude //base onde o y vai começar
+		
+		//apliccando animação de onda
+		yy = base_y + sin(t * (2*pi / tempo)) * amplitude
 		break
 	}
 	

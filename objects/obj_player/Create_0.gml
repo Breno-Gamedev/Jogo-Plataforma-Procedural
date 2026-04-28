@@ -44,6 +44,8 @@ wall_h_power = dft_wall_h_power //força horizontal do walljump
 //follow leader
 body_state = "parado"
 
+t = 0
+
 point_count = 4
 seg_len = 7
 
