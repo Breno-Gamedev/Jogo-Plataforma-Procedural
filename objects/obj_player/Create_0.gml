@@ -37,7 +37,7 @@ wall_jump_power = 5.2 //força do pulo wall
 dft_wall_h_power = 10 //força padrão horizontal do walljump
 wall_h_power = dft_wall_h_power //força horizontal do walljump
 
-jump = false
+wall_state_exit = 0.1
 
 
 //inputs

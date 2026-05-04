@@ -2,10 +2,23 @@ if keyboard_check_pressed(vk_backspace) room_restart()
 
 #region ---> VARIAVEIS 
 
-var _side_wall = place_meeting(x+move_dir,y,obj_wall)
+var _side_wall = place_meeting(x+1,y,obj_wall) || place_meeting(x-1,y,obj_wall)
 var ground = place_meeting(x, y + 1, obj_wall)
 
 #endregion
+
+//coyote
+if ground{
+	coyote_timer = coyote_time
+}else{
+	coyote_timer -= delta_time / 1000000
+}
+
+if _side_wall{
+	wall_coyote_timer = wall_coyote_time	
+}else{
+	wall_coyote_timer -= delta_time / 1000000
+}
 
 #region ---> INPUTS
 //direita
@@ -84,7 +97,7 @@ hspd_impulse = lerp(hspd_impulse,0,dcc)
 
 #region ---> COLISÃO 
 //colisão horizontal
-if place_meeting(x+hspd,y,obj_wall) and place_meeting(x+hspd, y-1, obj_wall)
+if place_meeting(x+hspd,y,obj_wall)// and place_meeting(x+hspd, y-1, obj_wall)
 {
 		
 	//colisão perfeita
@@ -189,6 +202,8 @@ switch estado
 			//pulando
 			vspd-=jump_power
 			
+			coyote_timer = 0
+			
 			//resetando buff
 			input_buff.jump_pressed = 0	
 			keys.jump_pressed = false
@@ -225,11 +240,6 @@ switch estado
 		//comportamento
 		body_state = "caindo"
 		
-		//coyote
-		coyote_timer -= delta_time / 1000000
-		//coyote wall
-		wall_coyote_timer -= delta_time / 1000000
-		
 		//condição de troca
 		//parado
 		if ground{
@@ -237,6 +247,13 @@ switch estado
 			pulando = false //reset
 			estado = "parado"
 			image_index = 0
+		}
+		
+		//wall coyote
+		if keys.jump_pressed and wall_coyote_timer > 0{
+			wall_coyote_timer = 0
+			wall_pulando = true
+			estado = "walljump"	
 		}
 		
 		//coyote
@@ -267,24 +284,29 @@ switch estado
 		wall_coyote_timer = wall_coyote_time
 		
 		//condição de troca
-		
-		//saindo climb
-		if !_side_wall or ground{
-			//reset
-			vspd_max = dft_vspd_max	
-			
-			estado = "parado"
-			image_index = 0
-		}
-		
 		//walljump
 		if keys.jump_pressed{
 			//reset
 			vspd_max = dft_vspd_max	
 			
+			wall_coyote_timer = wall_coyote_time
+			
 			wall_pulando = true
 			estado = "walljump"
 			image_index = 0
+		}
+		
+		//saindo climb
+		else if !_side_wall and vspd > 0{
+			//reset
+			vspd_max = dft_vspd_max	
+			
+			estado = "caindo"
+			image_index = 0
+		}
+		
+		if ground{
+			estado = "parado"
 		}
 		break
 	}
@@ -296,15 +318,19 @@ switch estado
 		
 		//evitando super velocidade
 		//diminuindo minha força caso eu esteja andando pro lado contrário da parede
-		if move != 0 and sign(hspd) == sign(move_dir){
-			//wall_h_power -= 6
-		}else{
-			//wall_h_power = dft_wall_h_power	
-		}
+		//if move != 0 and sign(hspd) == sign(move_dir){
+		//	//wall_h_power -= 6
+		//}else{
+		//	//wall_h_power = dft_wall_h_power	
+		//}
+		
+		wall_coyote_timer = 0
 		
 		//pulando
 		if wall_pulando
-		{			
+		{
+			wall_state_exit = 0.1
+			
 			//mudando limite pra poder pular mais alto
 			vspd_min = -wall_jump_power
 			
@@ -338,18 +364,22 @@ switch estado
 			vspd_min = dft_vspd_min	
 		}
 		
-
 		
-		//caindo
-		if vspd > 0{
-			estado = "parado"
-			image_index = 0
-		}
+		if wall_state_exit < 0
+		{
+			//caindo
+			if vspd > 0{
+				estado = "caindo"
+				image_index = 0
+			}
 		
-		//wallclimb
-		if _side_wall{
-			estado = "wallclimb"
-			image_index = 0
+			//wallclimb
+			if _side_wall{
+				estado = "wallclimb"
+				image_index = 0
+			}
+		}else{
+			wall_state_exit -= delta_time / 1000000
 		}
 		break
 	}
