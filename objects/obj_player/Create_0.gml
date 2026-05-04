@@ -28,7 +28,7 @@ coyote_time = 0.1 //tempo em segundos de tolerância do coyote jump
 coyote_timer = coyote_time //timer do coyote jump
 
 //walljump
-wall_coyote_time = 0.1 //tempo em segundos de tolerância do coyote jump para o wallclimb
+wall_coyote_time = 0.2 //tempo em segundos de tolerância do coyote jump para o wallclimb
 wall_coyote_timer = coyote_time //timer do coyote jump para wallclimb
 
 wall_pulando = false //controle do pulo do wallump
@@ -37,9 +37,24 @@ wall_jump_power = 5.2 //força do pulo wall
 dft_wall_h_power = 10 //força padrão horizontal do walljump
 wall_h_power = dft_wall_h_power //força horizontal do walljump
 
+jump = false
 
 
+//inputs
+keys={
+	right : 0,
+	left : 0,
+	jump : 0,
+	jump_pressed : 0
+}
 
+//input buff
+input_buff={
+	right : 0,
+	left : 0,
+	jump : 0,
+	jump_pressed : 0
+}
 
 //follow leader
 body_state = "parado"

@@ -2,19 +2,54 @@ if keyboard_check_pressed(vk_backspace) room_restart()
 
 #region ---> VARIAVEIS 
 
-var _kright = keyboard_check(vk_right)
-var _kleft = keyboard_check(vk_left)
-var _kjump = keyboard_check(vk_up)
-var _kjump_pressed = keyboard_check_pressed(vk_up)
-
 var _side_wall = place_meeting(x+move_dir,y,obj_wall)
+var ground = place_meeting(x, y + 1, obj_wall)
+
+#endregion
+
+#region ---> INPUTS
+//direita
+if keyboard_check(vk_right) or keyboard_check(ord("D")){
+	keys.right = true
+}else{
+	keys.right = false	
+}
+
+//esquerda
+if keyboard_check(vk_left) or keyboard_check(ord("A")){
+	keys.left = true
+}else{
+	keys.left = false	
+}
+
+//pulo
+if keyboard_check(vk_up) or keyboard_check(ord("W")) or keyboard_check(vk_space){
+	keys.jump = true
+}else{
+	keys.jump = false	
+}
+
+//pulo pressed
+if keyboard_check_pressed(vk_up) or keyboard_check_pressed(ord("W")) or keyboard_check_pressed(vk_space){
+	input_buff.jump_pressed = 0.25
+}
+#endregion
+
+#region ---> INPUT BUFF
+
+//pulo pressed
+if input_buff.jump_pressed > 0{
+	input_buff.jump_pressed -= delta_time / 1000000
+	keys.jump_pressed = true
+}else{
+	keys.jump_pressed = false
+}
 
 #endregion
 
 #region ---> LOGICA MOVIMENTAÇÃO 
 
-var move = _kright - _kleft
-var ground = place_meeting(x, y + 1, obj_wall)
+var move = keys.right - keys.left
 
 //gravidade e limitando vspd
 if estado != "parado"{
@@ -24,7 +59,9 @@ vspd = clamp(vspd,vspd_min,vspd_max)
 
 //definindo direção
 if move != 0{
-	move_dir = move	
+	move_dir = move
+	input_buff.right = 0
+	input_buff.left = 0
 }
 
 //se eu apertar pra mover eu adiciono valor ao hspd_input
@@ -45,85 +82,23 @@ hspd_impulse = lerp(hspd_impulse,0,dcc)
 
 #endregion
 
-#region ---> RAMPA 
-
-var rampei = false //variavel de controle pra saber se estou na rampa 
-
-//mudando o valor de correção da rampa caso esteja ou não no chão
-if ground{
-	var _val = abs(hspd)
-}else{
-	var _val = 1.5
-}
-
-//se tiver parede a um pixel 
-if place_meeting(x+sign(hspd),y,obj_wall)
-{ 
-	//loop pra checar quantos pixels vazios 
-	for (var i = 1; i <= 2 * _val; i++) 
-	{ 
-		//se tiver um pixel na frente mas tiver vazio acima 
-		if !place_meeting(x+sign(hspd),y-i,obj_wall) 
-		{ 
-			y-=i //subindo 
-			x += hspd //andando 
-			rampei = true //estou rampando 
-			break //quebrando loop 
-		} 
-	} 
-} 
-
-//descendo rampa 
-//checando se estou no chão e não tem colisão à frente e abaixo e não estou rampando 
-if place_meeting(x,y+abs(vspd),obj_wall) and !place_meeting(x+sign(hspd),y+1,obj_wall) 
-{ 
-	//loop 
-	for (var i = 1; i <=5; i++) 
-	{ //se não tiver colisão abaixo mas ainda vai ter colisão um pouco depois... 
-		if !place_meeting(x+sign(hspd),y+i,obj_wall) and place_meeting(x+sign(hspd),y+i+1,obj_wall) 
-		{ 
-			rampei = true //estou na rampa 
-			y += i //descendo 
-			x += hspd //andando 
-			//--ANTI BUG 
-			//se eu estiver caindo e não estiver subindo a rampa 
-			if vspd > 0 and !place_meeting(x+sign(hspd),y+i,obj_wall) 
-			{ 
-				//loop que vai repetir de acordo com o tanto que eu andei 
-				for (var _i = 0; _i < abs(hspd) + 1; _i++) 
-				{ 
-					//se não tem chão eu desço 
-					if !place_meeting(x, y + 1, obj_wall) y += i
-					else break //se tiver chão eu paro o loop 
-				} 
-			} 
-			break 
-		} 
-	} 
-} 
-#endregion
-
 #region ---> COLISÃO 
 //colisão horizontal
-//se eu não estiver rampando eu posso colidir normalmente
-if !rampei
+if place_meeting(x+hspd,y,obj_wall) and place_meeting(x+hspd, y-1, obj_wall)
 {
-	if place_meeting(x+hspd,y,obj_wall) and place_meeting(x+hspd, y-1, obj_wall)
-	{
 		
-		//colisão perfeita
-		while !place_meeting(x+sign(hspd),y,obj_wall)
-		{
-			x = x + sign(hspd)
-		}
-		//só zera se eu estiver indo na direção da parede (evitar bug de walljump)
-		if sign(hspd) == move_dir{
-			hspd = 0 //se eu colidir não ando mais
-		}
+	//colisão perfeita
+	while !place_meeting(x+sign(hspd),y,obj_wall)
+	{
+		x = x + sign(hspd)
 	}
-
-	x+=hspd
+	//só zera se eu estiver indo na direção da parede (evitar bug de walljump)
+	if sign(hspd) == move_dir{
+		hspd = 0 //se eu colidir não ando mais
+	}
 }
+
+x+=hspd
 
 
 //colisão vertical
@@ -162,13 +137,13 @@ switch estado
 		}
 		
 		//pulando
-		if _kjump{
+		if keys.jump or keys.jump_pressed{
 			estado = "pulando"
 			image_index = 0
 		}
 		
 		//caindo
-		if !ground and !rampei{
+		if !ground{
 			estado = "caindo"
 			image_index = 0
 		}
@@ -188,7 +163,7 @@ switch estado
 		}
 		
 		//pulando
-		if _kjump{
+		if keys.jump or keys.jump_pressed{
 			estado = "pulando"
 			image_index = 0
 		}
@@ -214,13 +189,17 @@ switch estado
 			//pulando
 			vspd-=jump_power
 			
+			//resetando buff
+			input_buff.jump_pressed = 0	
+			keys.jump_pressed = false
+			
 			//reset
 			pulando = true
 		}
 		
 		//condição de troca
 		//caindo
-		if vspd > 0 and !_kjump{
+		if vspd > 0{
 			estado = "caindo"
 			image_index = 0
 		}
@@ -261,18 +240,13 @@ switch estado
 		}
 		
 		//coyote
-		if _kjump_pressed and coyote_timer > 0{
+		if keys.jump_pressed and coyote_timer > 0{
 			coyote_timer = coyote_time
 			estado = "pulando"	
 		}
 		
-		//wallcoyote
-		if _kjump_pressed and wall_coyote_timer > 0{
-			estado = "walljump"	
-		}
-		
 		//wallclimb
-		if _side_wall and !ground{
+		if _side_wall{
 			estado = "wallclimb"
 			image_index = 0
 		}
@@ -283,14 +257,6 @@ switch estado
 	{
 		//comportamento
 		body_state = "wallclimb"
-		
-		//alinhando x
-		for (var i = 1; i<point_count; i++)
-		{
-			var p = points[i]
-			
-			p._x = lerp(p._x,xx,0.2)
-		}
 		
 		//caindo lento
 		if vspd > 0{
@@ -312,7 +278,7 @@ switch estado
 		}
 		
 		//walljump
-		if _kjump_pressed{
+		if keys.jump_pressed{
 			//reset
 			vspd_max = dft_vspd_max	
 			
@@ -347,6 +313,10 @@ switch estado
 			
 			vspd -= wall_jump_power
 			
+			//resetando buffs
+			input_buff.jump_pressed = 0	
+			keys.jump_pressed = false
+			
 			//antibug de inverter direção sem precisar
 			//invertendo a direção da força caso eu esteja encostado na parede/não me movendo
 			if place_meeting(x+sign(move_dir),y,obj_wall){
@@ -368,14 +338,16 @@ switch estado
 			vspd_min = dft_vspd_min	
 		}
 		
+
+		
 		//caindo
 		if vspd > 0{
-			estado = "caindo"
+			estado = "parado"
 			image_index = 0
 		}
 		
 		//wallclimb
-		if _side_wall and pulando = false{
+		if _side_wall{
 			estado = "wallclimb"
 			image_index = 0
 		}
@@ -384,10 +356,7 @@ switch estado
 }
 
 
-
-
-
-#region follow leader
+#region --> FOLLOW LEADER
 //resto segue o anterior
 for (var i = 1; i < point_count; i++)
 {
@@ -444,6 +413,7 @@ repeat(10)
 		points[i] = p
 	}
 }
+#endregion
 
 
 //state machine
@@ -508,6 +478,14 @@ switch body_state
 		//atualizando x e y
 		xx = x
 		yy = y	
+		
+		//alinhando x
+		for (var i = 1; i<point_count; i++)
+		{
+			var p = points[i]
+			
+			p._x = lerp(p._x,xx,0.2)
+		}
 		break
 	}
 		
