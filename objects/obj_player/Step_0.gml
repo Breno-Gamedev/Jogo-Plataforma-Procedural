@@ -240,65 +240,22 @@ y+=vspd
 
 #endregion
 
+var plat = instance_place(x,y+1,obj_wall_move)
+var plat2 = place_meeting(x,y+1,obj_wall_move)
+var inst = instance_place(x,y+1,obj_wall)
 
-#region --> FOLLOW LEADER
-//resto segue o anterior
-for (var i = 1; i < point_count; i++)
-{
-	
-	var p = points[i]
-	var prev = points[i - 1]
-	
-	var dx = prev._x - p._x
-	var dy = prev._y - p._y
-	
-	var dist = point_distance(p._x, p._y, prev._x, prev._y)
-	
-	if hspd < 0.1 and hspd > -01 and !position_meeting(p._x,p._y+1,obj_wall){
-		p._y += 24
-	}
-	
-	if (dist != 0)
-	{
-		//posição ideal (mantendo distância)
-		var target_x = prev._x - (dx / dist) * seg_len
-		var target_y = prev._y - (dy / dist) * seg_len
-		
-		//suavização (ESSENCIAL)
-		p._x = lerp(p._x, target_x, 0.9)
-		p._y = lerp(p._y, target_y, 0.9)
-	}
-	
-	points[i] = p
+if plat2 and vspd >= 0 and inst.object_index != obj_wall{
+    y += plat.vspd
+
+    // cola no topo da plataforma
+    while !place_meeting(x, y + 1, obj_wall) and place_meeting(x, y + 2, obj_wall_move){
+        y += 1
+    }
 }
 
-//colisão
-repeat(10)
-{
-	for (var i = 1; i < point_count; i++)
-	{
-		var p = points[i]
-		var prev = points[i - 1]
-	
-		if position_meeting(p._x,p._y,obj_wall)
-		{
-			//tenta resolver separando eixo
-			if !position_meeting(prev._x,p._y,obj_wall){
-				p._x = lerp(p._x,prev._x,0.2)
-			}
-			else if !position_meeting(p._x,prev._y,obj_wall){
-				p._y = lerp(p._y,prev._y,0.2)
-			}
-			else{
-				p._x = lerp(p._x,prev._x,0.2)
-				p._y = lerp(p._y,prev._y,0.2)
-			}
-		}
-		
-		points[i] = p
-	}
+if plat2 {
+   x += plat.hspd
 }
-#endregion
 
 #region --> BODY STATE
 
@@ -306,39 +263,85 @@ switch body_state
 {
 	case "parado":
 	{
-		//ficando pra cima
+		var val = 0.5
 		var ty = y - seg_len * (point_count-1)
 		
+		xx = x 
+		yy = lerp(yy, ty, 0.25)
+		
+		var p1 = points[1]
+		var p2 = points[2]
+		var p3 = points[3]
+				
+		//p1
+		var p1_ty = y - seg_len
+		
+		p1._x = x
+		p1._y = lerp(p1._y, p1_ty, val)
+		
+		//p2
+		var p2_tx = x - (seg_len/2) * move_dir
+		var p2_ty = y - seg_len / 15
+		
+		p2._x = lerp(p2._x, p2_tx, val)
+		p2._y = lerp(p2._y, p2_ty, val)
+		
+		//p3
+		var p3_tx = x - seg_len * move_dir
+		
+		p3._x = lerp(p3._x, p3_tx, val)
+		p3._y = y
+		
+		points[1] = p1
+		points[2] = p2
+		points[3] = p3
+		
+		/*
+		//definindo lerp
+		var i = plat != noone ? 2 : 1
+		var _y = y
+		
+		var p2 = points[2]
+		
+		if plat != noone{
+			p2._x = x
+			p2._y = lerp(p2._y,y,lerp_val)
+			
+			_y = p2._y
+		}
+		
+		//ficando pra cima
+		var ty = _y - seg_len * (point_count-1) / i
+		
+		//mudando o valor do lerp de acordo
 		xx = x
 		yy = lerp(yy,ty,0.1)
-		
 		
 		//colocando o ultimo ponto pro lado
 		var plast = points[point_count-1]
 		
-		var px = xx - seg_len * move_dir
+		var px = x - seg_len * move_dir
 		var py = y
 		
 		plast._x = lerp(plast._x,px,0.9)
 		plast._y = lerp(plast._y,py,0.1)
 		
 		points[point_count-1] = plast
+		points[2] = p2*/
 		break
 	}
 	
 	case "andando":
 	{
-		//atualizando x e y
-		xx = x
-		
 		//acumulando tempo
 		t += delta_time / 1000000
 		var tempo = 0.33 //intervalo da onda (quanto tempo dura um cilco)
 		var amplitude = 2 //amplitude da onda (altura)
 		var base_y = y - amplitude //base onde o y vai começar
 		
-		//apliccando animação de onda
-		yy = base_y + sin(t * (2*pi / tempo)) * amplitude
+		//atualizando x e y
+		xx = x
+		yy = base_y + sin(t * (2 * pi / tempo)) * amplitude
 		break
 	}
 	
@@ -384,3 +387,64 @@ switch body_state
 }
 
 #endregion
+if body_state != "parado"
+{
+	#region --> FOLLOW LEADER
+	//resto segue o anterior
+	for (var i = 1; i < point_count; i++)
+	{
+	
+		var p = points[i]
+		var prev = points[i - 1]
+	
+		var dx = prev._x - p._x
+		var dy = prev._y - p._y
+	
+		var dist = point_distance(p._x, p._y, prev._x, prev._y)
+	
+		if hspd < 0.1 and hspd > -0.1 and !position_meeting(p._x,p._y+1,obj_wall){
+			p._y += 24
+		}
+	
+		if (dist != 0)
+		{
+			//posição ideal (mantendo distância)
+			var target_x = prev._x - (dx / dist) * seg_len
+			var target_y = prev._y - (dy / dist) * seg_len
+		
+			//suavização (ESSENCIAL)
+			p._x = lerp(p._x, target_x, 0.9)
+			p._y = lerp(p._y, target_y, 0.9)
+		}
+	
+		points[i] = p
+	}
+
+	//colisão
+	repeat(10)
+	{
+		for (var i = 1; i < point_count; i++)
+		{
+			var p = points[i]
+			var prev = points[i - 1]
+	
+			if position_meeting(p._x,p._y,obj_wall)
+			{
+				//tenta resolver separando eixo
+				if !position_meeting(prev._x,p._y,obj_wall){
+					p._x = lerp(p._x,prev._x,0.2)
+				}
+				else if !position_meeting(p._x,prev._y,obj_wall){
+					p._y = lerp(p._y,prev._y,0.2)
+				}
+				else{
+					p._x = lerp(p._x,prev._x,0.2)
+					p._y = lerp(p._y,prev._y,0.2)
+				}
+			}
+		
+			points[i] = p
+		}
+	}
+	#endregion
+}

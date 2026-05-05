@@ -64,5 +64,7 @@ for (var i = 0; i < point_count; i++)
 	}
 }
 
+lerp_val = 0.1
+
 xx = x //alvo x
 yy = y //alvo y
