@@ -1,310 +1,141 @@
 if keyboard_check_pressed(vk_backspace) room_restart()
 
-#region ---> VARIAVEIS 
+var seconds = delta_time / 1000000
 
-var _side_wall = place_meeting(x+1,y,obj_wall) || place_meeting(x-1,y,obj_wall)
-var ground = place_meeting(x, y + 1, obj_wall)
+#region --> INPUTS
+
+key.right	= keyboard_check(vk_right)		|| keyboard_check(ord("D"))
+key.left	= keyboard_check(vk_left)		|| keyboard_check(ord("A"))
+key.jump	= keyboard_check_pressed(vk_up)	|| keyboard_check_pressed(ord("W"))	|| keyboard_check_pressed(vk_space)
+
+if key.jump{
+	input_buff.jump = 0.25
+}
 
 #endregion
+
+#region --> CHECKS BASE
+
+var ground = place_meeting(x,y+1,obj_wall)
+var move = key.right - key.left
+
+if move != 0{
+	move_dir = move	
+}
+
+var side_wall = place_meeting(x+move_dir,y,obj_wall)
+
+#endregion
+
+#region --> TIMERS
 
 //coyote
-if ground{
-	coyote_timer = coyote_time
+if ground coyote_timer = coyote_time
+else coyote_timer -= seconds
+
+//coyote wall
+if side_wall wall_coyote_timer = wall_coyote_time
+else wall_coyote_timer -= seconds
+
+//input buffer
+if input_buff.jump > 0{
+	input_buff.jump -= seconds	
+	key.jump = true
 }else{
-	coyote_timer -= delta_time / 1000000
-}
-
-if _side_wall{
-	wall_coyote_timer = wall_coyote_time	
-}else{
-	wall_coyote_timer -= delta_time / 1000000
-}
-
-#region ---> INPUTS
-//direita
-if keyboard_check(vk_right) or keyboard_check(ord("D")){
-	keys.right = true
-}else{
-	keys.right = false	
-}
-
-//esquerda
-if keyboard_check(vk_left) or keyboard_check(ord("A")){
-	keys.left = true
-}else{
-	keys.left = false	
-}
-
-//pulo
-if keyboard_check(vk_up) or keyboard_check(ord("W")) or keyboard_check(vk_space){
-	keys.jump = true
-}else{
-	keys.jump = false	
-}
-
-//pulo pressed
-if keyboard_check_pressed(vk_up) or keyboard_check_pressed(ord("W")) or keyboard_check_pressed(vk_space){
-	input_buff.jump_pressed = 0.25
-}
-#endregion
-
-#region ---> INPUT BUFF
-
-//pulo pressed
-if input_buff.jump_pressed > 0{
-	input_buff.jump_pressed -= delta_time / 1000000
-	keys.jump_pressed = true
-}else{
-	keys.jump_pressed = false
+	key.jump = false
 }
 
 #endregion
 
-#region ---> LOGICA MOVIMENTAÇÃO 
+#region --> STATE MACHINE
 
-var move = keys.right - keys.left
-
-//gravidade e limitando vspd
-if estado != "parado"{
-	vspd += grav
-}
-vspd = clamp(vspd,vspd_min,vspd_max)
-
-//definindo direção
-if move != 0{
-	move_dir = move
-	input_buff.right = 0
-	input_buff.left = 0
-}
-
-//se eu apertar pra mover eu adiciono valor ao hspd_input
-if move != 0{
-	hspd_input = lerp(hspd_input,move_spd * move_dir,acc)	
-}else{
-	hspd_input = lerp(hspd_input,0,dcc)
-}
-
-show_debug_message("move: " + string(move_dir))
-show_debug_message("hspd_input: " + string(hspd_input))
-
-//definindo o hspd
-hspd = hspd_input + hspd_impulse
-
-//resetando hspd_impulse
-hspd_impulse = lerp(hspd_impulse,0,dcc)
-
-#endregion
-
-#region ---> COLISÃO 
-//colisão horizontal
-if place_meeting(x+hspd,y,obj_wall)// and place_meeting(x+hspd, y-1, obj_wall)
-{
-		
-	//colisão perfeita
-	while !place_meeting(x+sign(hspd),y,obj_wall)
-	{
-		x = x + sign(hspd)
-	}
-	//só zera se eu estiver indo na direção da parede (evitar bug de walljump)
-	if sign(hspd) == move_dir{
-		hspd = 0 //se eu colidir não ando mais
-	}
-}
-
-x+=hspd
-
-
-//colisão vertical
-if place_meeting(x,y+vspd,obj_wall)
-{
-	//colisão perfeita
-	while !place_meeting(x,y+sign(vspd),obj_wall)
-	{
-		y = y + sign(vspd)
-	}
-	vspd = 0 //parando
-}
-
-y+=vspd //setando y = velocidade vertical
-#endregion
-
+//reset
+want_jump = false
+want_walljump = false
 
 switch estado
 {
-	case "parado":
+	case "parado": case "andando":
 	{
-		//comportamento
-		body_state = "parado"
+		body_state = move == 0 ? "parado" : "andando"
 		
-		//resetando para segurança
-		vspd_min = dft_vspd_min	
-		
-		//resetando variaveis
-		pulo_alto = true
-		
-		//condição de troca
-		//andando
-		if move != 0{
-			estado = "andando"
-			image_index = 0
-		}
-		
-		//pulando
-		if keys.jump or keys.jump_pressed{
-			estado = "pulando"
-			image_index = 0
-		}
-		
-		//caindo
-		if !ground{
-			estado = "caindo"
-			image_index = 0
-		}
-		break
-	}
-	
-	case "andando":
-	{
-		//comportamento
-		body_state = "andando"
-		
-		//condição de troca
+		//trocas
 		//parado
-		if move == 0{
-			estado = "parado"
-			image_index = 0
+		if !ground{
+			estado = "caindo"	
 		}
 		
 		//pulando
-		if keys.jump or keys.jump_pressed{
+		if key.jump{
+			want_jump = true
 			estado = "pulando"
-			image_index = 0
-		}
-		
-		//caindo
-		if !ground{
-			estado = "caindo"
-			image_index = 0
 		}
 		break
 	}
 	
 	case "pulando":
 	{
-		//comportamento		
 		body_state = "pulando"
 		
-		if !pulando
-		{
-			//reset por segurança
-			vspd = 0
-			
-			//pulando
-			vspd-=jump_power
-			
-			coyote_timer = 0
-			
-			//resetando buff
-			input_buff.jump_pressed = 0	
-			keys.jump_pressed = false
-			
-			//reset
-			pulando = true
-		}
-		
-		//condição de troca
+		//trocas
 		//caindo
 		if vspd > 0{
-			estado = "caindo"
-			image_index = 0
+			estado = "caindo"	
 		}
 		
-		//parado
-		if ground{
-			pulando = false //reset
-			
-			estado = "parado"
-			image_index = 0
-		}
-		
-		//wallclimb
-		if _side_wall and !ground{
-			estado = "wallclimb"
-			image_index = 0
+		//wall climb
+		if side_wall and !ground{
+			estado = "wallclimb"	
 		}
 		break
 	}
 	
 	case "caindo":
 	{
-		//comportamento
 		body_state = "caindo"
 		
-		//condição de troca
+		//trocas
 		//parado
 		if ground{
-			coyote_timer = coyote_time //reset
-			pulando = false //reset
-			estado = "parado"
-			image_index = 0
-		}
-		
-		//wall coyote
-		if keys.jump_pressed and wall_coyote_timer > 0{
-			wall_coyote_timer = 0
-			wall_pulando = true
-			estado = "walljump"	
+			estado = "parado"	
 		}
 		
 		//coyote
-		if keys.jump_pressed and coyote_timer > 0{
-			coyote_timer = coyote_time
-			estado = "pulando"	
+		if key.jump and coyote_timer > 0{
+			want_jump = true
+			estado = "pulando"
 		}
 		
-		//wallclimb
-		if _side_wall{
-			estado = "wallclimb"
-			image_index = 0
+		//wall coyote
+		if key.jump and wall_coyote_timer > 0{
+			want_walljump = true
+			estado = "walljump"
 		}
-		break	
+		
+		//wall climb
+		if side_wall{
+			estado = "wallclimb"	
+		}
+		break
 	}
 	
 	case "wallclimb":
 	{
-		//comportamento
 		body_state = "wallclimb"
 		
-		//caindo lento
-		if vspd > 0{
-			vspd_max = 0.75
-		}
-	
-		//resetando coyote
-		wall_coyote_timer = wall_coyote_time
-		
-		//condição de troca
-		//walljump
-		if keys.jump_pressed{
-			//reset
-			vspd_max = dft_vspd_max	
-			
-			wall_coyote_timer = wall_coyote_time
-			
-			wall_pulando = true
+		//trocas
+		//wall jump
+		if key.jump{
+			want_walljump = true	
 			estado = "walljump"
-			image_index = 0
 		}
 		
-		//saindo climb
-		else if !_side_wall and vspd > 0{
-			//reset
-			vspd_max = dft_vspd_max	
-			
-			estado = "caindo"
-			image_index = 0
+		//caindo
+		if !side_wall{
+			estado = "caindo"	
 		}
 		
+		//parado
 		if ground{
 			estado = "parado"
 		}
@@ -313,77 +144,101 @@ switch estado
 	
 	case "walljump":
 	{
-		//comportamento
 		body_state = "walljump"
 		
-		//evitando super velocidade
-		//diminuindo minha força caso eu esteja andando pro lado contrário da parede
-		//if move != 0 and sign(hspd) == sign(move_dir){
-		//	//wall_h_power -= 6
-		//}else{
-		//	//wall_h_power = dft_wall_h_power	
-		//}
-		
-		wall_coyote_timer = 0
-		
-		//pulando
-		if wall_pulando
-		{
-			wall_state_exit = 0.1
-			
-			//mudando limite pra poder pular mais alto
-			vspd_min = -wall_jump_power
-			
-			//reset
-			vspd = 0
-			
-			vspd -= wall_jump_power
-			
-			//resetando buffs
-			input_buff.jump_pressed = 0	
-			keys.jump_pressed = false
-			
-			//antibug de inverter direção sem precisar
-			//invertendo a direção da força caso eu esteja encostado na parede/não me movendo
-			if place_meeting(x+sign(move_dir),y,obj_wall){
-				var _force = wall_h_power * -move_dir
-			}
-			//não invertendo caso eu esteja apertando pro lado
-			else{
-				var _force = wall_h_power * move_dir
-			}
-			//aplicando força
-			hspd_input = _force
-
-			//reset
-			wall_pulando = false
-		}
-		else
-		{
-			//resetando
-			vspd_min = dft_vspd_min	
+		//trocas
+		//caindo
+		if vspd > 0{
+			estado = "caindo"
 		}
 		
-		
-		if wall_state_exit < 0
-		{
-			//caindo
-			if vspd > 0{
-				estado = "caindo"
-				image_index = 0
-			}
-		
-			//wallclimb
-			if _side_wall{
-				estado = "wallclimb"
-				image_index = 0
-			}
-		}else{
-			wall_state_exit -= delta_time / 1000000
+		//wall climb
+		if side_wall{
+			estado = "wallclimb"	
 		}
 		break
 	}
 }
+
+#endregion
+
+#region --> FÍSICA
+
+//movimento horizontal
+if move != 0{
+	hspd_input = lerp(hspd_input, move_spd * move_dir, acc)
+}else{
+	hspd_input = lerp(hspd_input, 0, dcc)	
+}
+
+//pulo normal
+if want_jump{
+	vspd = -jump_power
+	coyote_timer = 0
+	input_buff.jump = 0
+}
+
+//wall jump
+if want_walljump{
+	vspd = -wall_jump_power
+	
+	var force = wall_h_power
+	
+	if place_meeting(x+move_dir,y,obj_wall){
+		force *= -move_dir
+	}else{
+		force *= move_dir	
+	}
+	
+	hspd_input = force
+	
+	wall_coyote_timer = 0
+	input_buff.jump = 0
+}
+
+//gravidade
+vspd += grav
+
+//limites
+vspd = clamp(vspd,vspd_min,vspd_max)
+
+//wall slide
+if side_wall and vspd > 0{
+	vspd = min(vspd,0.75)
+}
+
+//velocidade final
+hspd = hspd_input + hspd_impulse
+hspd_impulse = lerp(hspd_impulse,0,dcc)
+
+#endregion
+
+#region --> COLISÃO
+
+//horizontal
+if place_meeting(x+hspd,y,obj_wall)
+{
+	while !place_meeting(x+sign(hspd),y,obj_wall){
+		x += sign(hspd)	
+	}
+	
+	if sign(hspd) == move_dir{
+		hspd = 0	
+	}
+}
+x+=hspd
+
+//vertical
+if place_meeting(x,y+vspd,obj_wall)
+{
+	while !place_meeting(x,y+sign(vspd),obj_wall){
+		y += sign(vspd)	
+	}
+	vspd = 0	
+}
+y+=vspd
+
+#endregion
 
 
 #region --> FOLLOW LEADER
@@ -445,8 +300,8 @@ repeat(10)
 }
 #endregion
 
+#region --> BODY STATE
 
-//state machine
 switch body_state
 {
 	case "parado":
@@ -527,3 +382,5 @@ switch body_state
 		break	
 	}
 }
+
+#endregion
