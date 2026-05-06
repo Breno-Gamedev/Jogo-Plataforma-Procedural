@@ -213,13 +213,30 @@ hspd_impulse = lerp(hspd_impulse,0,dcc)
 
 #endregion
 
+#region --> CORREÇÃO DE QUINA
+
+if place_meeting(x+hspd,y,obj_wall)
+{
+	for (var i = 0; i < 4; i++)
+	{
+		if !place_meeting(x+hspd,y-i,obj_wall){
+			y -= i	
+			break
+		}
+	}
+}
+
+#endregion
+
 #region --> COLISÃO
 
 //horizontal
 if place_meeting(x+hspd,y,obj_wall)
 {
-	while !place_meeting(x+sign(hspd),y,obj_wall){
-		x += sign(hspd)	
+	if hspd != 0{
+		while !place_meeting(x+sign(hspd),y,obj_wall){
+			x += sign(hspd)	
+		}
 	}
 	
 	if sign(hspd) == move_dir{
@@ -231,8 +248,10 @@ x+=hspd
 //vertical
 if place_meeting(x,y+vspd,obj_wall)
 {
-	while !place_meeting(x,y+sign(vspd),obj_wall){
-		y += sign(vspd)	
+	if vspd != 0{
+		while !place_meeting(x,y+sign(vspd),obj_wall){
+			y += sign(vspd)	
+		}
 	}
 	vspd = 0	
 }
@@ -240,22 +259,24 @@ y+=vspd
 
 #endregion
 
-var plat = instance_place(x,y+1,obj_wall_move)
-var plat2 = place_meeting(x,y+1,obj_wall_move)
-var inst = instance_place(x,y+1,obj_wall)
+#region -- PLATAFORMA MOVÉIS
+var platv = instance_place(x,y+1,obj_wall_movev)
+var instv = instance_place(x,y+1,obj_wall)
 
-if plat2 and vspd >= 0 and inst.object_index != obj_wall{
-    y += plat.vspd
+var plath = instance_place(x,y+1,obj_wall_moveh)
+var insth = instance_place(x+move_dir,y,obj_wall)
 
-    // cola no topo da plataforma
-    while !place_meeting(x, y + 1, obj_wall) and place_meeting(x, y + 2, obj_wall_move){
-        y += 1
-    }
+//vertical
+if platv and vspd >= 0 and instv.object_index != obj_wall{
+    y += platv.vspd
 }
 
-if plat2 {
-   x += plat.hspd
+//horizontal
+if plath and insth.object_index != obj_wall{
+   x += plath.hspd
 }
+
+#endregion
 
 #region --> BODY STATE
 
@@ -387,9 +408,10 @@ switch body_state
 }
 
 #endregion
+
+#region --> FOLLOW LEADER
 if body_state != "parado"
 {
-	#region --> FOLLOW LEADER
 	//resto segue o anterior
 	for (var i = 1; i < point_count; i++)
 	{
@@ -401,9 +423,20 @@ if body_state != "parado"
 		var dy = prev._y - p._y
 	
 		var dist = point_distance(p._x, p._y, prev._x, prev._y)
-	
+		
+		//gravidade
 		if hspd < 0.1 and hspd > -0.1 and !position_meeting(p._x,p._y+1,obj_wall){
 			p._y += 24
+		}
+		
+		//se eu estiver na plataforma movel eu mudo a gravidade
+		if platv
+		{
+			if y > yprevious{
+				p._y += 8
+			}else{
+				p._y -= 10
+			}
 		}
 	
 		if (dist != 0)
@@ -446,5 +479,5 @@ if body_state != "parado"
 			points[i] = p
 		}
 	}
-	#endregion
 }
+#endregion

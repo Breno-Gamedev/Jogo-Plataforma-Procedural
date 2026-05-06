@@ -68,3 +68,5 @@ lerp_val = 0.1
 
 xx = x //alvo x
 yy = y //alvo y
+
+follow_grav = 24

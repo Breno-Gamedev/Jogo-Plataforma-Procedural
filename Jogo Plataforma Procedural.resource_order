@@ -17,8 +17,10 @@
     {"name":"Timelines","order":8,"path":"folders/Timelines.yy",},
   ],
   "ResourceOrderSettings":[
-    {"name":"obj_wall_move","order":2,"path":"objects/obj_wall_move/obj_wall_move.yy",},
+    {"name":"obj_wall_moveh","order":3,"path":"objects/obj_wall_moveh/obj_wall_moveh.yy",},
+    {"name":"obj_wall_movev","order":2,"path":"objects/obj_wall_movev/obj_wall_movev.yy",},
     {"name":"obj_wall","order":1,"path":"objects/obj_wall/obj_wall.yy",},
     {"name":"spr_player","order":1,"path":"sprites/spr_player/spr_player.yy",},
+    {"name":"spr_wall_move","order":2,"path":"sprites/spr_wall_move/spr_wall_move.yy",},
   ],
 }
