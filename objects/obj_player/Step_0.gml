@@ -23,7 +23,9 @@ if move != 0{
 	move_dir = move	
 }
 
-var side_wall = place_meeting(x+move_dir,y,obj_wall)
+var side_wall_inst = instance_place(x+move_dir,y,obj_wall)
+
+var side_wall = (side_wall_inst != noone and side_wall_inst.object_index == obj_wall)
 
 #endregion
 
