@@ -55,7 +55,7 @@ switch estado
 		//comportamento
 		pode_mover = true
 		
-		if switch_mode{
+		if !switch_mode{
 			spd += incr
 		}
 		

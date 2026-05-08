@@ -89,6 +89,11 @@ switch estado
 		if side_wall and !ground{
 			estado = "wallclimb"	
 		}
+		
+		//parado
+		if ground{
+			estado = "parado"	
+		}
 		break
 	}
 	
@@ -157,6 +162,14 @@ switch estado
 		//wall climb
 		if side_wall{
 			estado = "wallclimb"	
+		}
+		break
+	}
+		
+	case "teste":
+	{
+		if key.jump{
+			input_buff.jump = 2
 		}
 		break
 	}
@@ -241,9 +254,9 @@ if place_meeting(x+hspd,y,obj_wall)
 		}
 	}
 	
-	if sign(hspd) == move_dir{
-		hspd = 0	
-	}
+	hspd = 0
+	hspd_input = 0
+	hspd_impulse = 0
 }
 x+=hspd
 
@@ -266,19 +279,28 @@ var platv = instance_place(x,y+1,obj_wall_movev)
 var instv = instance_place(x,y+1,obj_wall)
 
 var plath = instance_place(x,y+1,obj_wall_moveh)
-var insth = instance_place(x+move_dir,y,obj_wall)
+var insth = instance_place(x,y+1,obj_wall)
+
+var plaths = instance_place(x+move_dir,y,obj_wall_moveh)
+var insths = instance_place(x+move_dir,y,obj_wall)
 
 //vertical
 if platv and vspd >= 0 and instv.object_index != obj_wall{
-    y += round(platv.vspd)
+	y += ceil(platv.vspd)
 }
 
-//horizontal
-if plath and insth.object_index != obj_wall{
-   x += plath.hspd
+//horizontal por cima
+if plath and vspd >= 0 and insth.object_index != obj_wall{
+	x += plath.hspd
+}
+
+//horizontal pelo lado
+if plaths and insths.object_index != obj_wall{
+	hspd_impulse = ceil(plaths.hspd)// + sign(plaths.hspd)
 }
 
 #endregion
+
 
 #region --> BODY STATE
 

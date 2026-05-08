@@ -1,4 +1,4 @@
-/*switch estado
+switch estado
 {
 	case "free":
 	{
@@ -44,7 +44,7 @@
 			if switch_mode{
 				estado = "esquerda"
 			}else{
-				obj_player.hspd_input += (spd * 2) * dir
+				obj_player.hspd_impulse = (spd * 2) * dir
 				estado = "parado"
 			}
 		}
@@ -56,7 +56,7 @@
 		//comportamento
 		pode_mover = true
 		
-		if switch_mode{
+		if !switch_mode{
 			spd += incr
 		}
 		
