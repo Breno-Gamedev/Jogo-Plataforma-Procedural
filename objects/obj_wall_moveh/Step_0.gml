@@ -35,6 +35,11 @@ switch estado
 	{
 		//comportamento
 		pode_mover = true
+		
+		if !switch_mode{
+			spd += incr
+		}
+		
 		dir = 1
 		tx = xx + dist * dir
 		
@@ -44,7 +49,7 @@ switch estado
 			if switch_mode{
 				estado = "esquerda"
 			}else{
-				obj_player.hspd_impulse = (spd * 2) * dir
+				obj_player.hspd = (spd * 2) * dir
 				estado = "parado"
 			}
 		}
@@ -69,7 +74,7 @@ switch estado
 			if switch_mode{
 				estado = "direita"
 			}else{
-				obj_player.hspd_impulse = (spd * 1.5) * dir
+				obj_player.hspd_impulse += (spd * 2) * dir
 				estado = "parado"
 			}
 		}

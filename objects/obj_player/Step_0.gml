@@ -224,7 +224,7 @@ if side_wall and vspd > 0{
 
 //velocidade final
 hspd = hspd_input + hspd_impulse
-hspd_impulse = lerp(hspd_impulse,0,dcc)
+hspd_impulse = lerp(hspd_impulse,0,0.05)
 
 #endregion
 
