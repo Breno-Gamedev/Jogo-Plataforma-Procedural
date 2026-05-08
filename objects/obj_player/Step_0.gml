@@ -268,7 +268,7 @@ var insth = instance_place(x+move_dir,y,obj_wall)
 
 //vertical
 if platv and vspd >= 0 and instv.object_index != obj_wall{
-    y += platv.vspd
+    y += round(platv.vspd)
 }
 
 //horizontal
