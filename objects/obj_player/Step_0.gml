@@ -224,7 +224,7 @@ if side_wall and vspd > 0{
 
 //velocidade final
 hspd = hspd_input + hspd_impulse
-hspd_impulse = lerp(hspd_impulse,0,0.05)
+hspd_impulse = lerp(hspd_impulse,0,0.065)
 
 #endregion
 
@@ -301,7 +301,6 @@ if plaths and insths.object_index != obj_wall{
 
 #endregion
 
-
 #region --> BODY STATE
 
 switch body_state
@@ -312,7 +311,7 @@ switch body_state
 		var ty = y - seg_len * (point_count-1)
 		
 		xx = x 
-		yy = lerp(yy, ty, 0.25)
+		yy = lerp(yy, ty, 0.5)
 		
 		var p1 = points[1]
 		var p2 = points[2]
@@ -382,7 +381,7 @@ switch body_state
 		t += delta_time / 1000000
 		var tempo = 0.33 //intervalo da onda (quanto tempo dura um cilco)
 		var amplitude = 2 //amplitude da onda (altura)
-		var base_y = y - amplitude //base onde o y vai começar
+		var base_y = y// - (amplitude/3) //base onde o y vai começar
 		
 		//atualizando x e y
 		xx = x
