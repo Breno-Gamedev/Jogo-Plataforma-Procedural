@@ -17,6 +17,7 @@
     {"name":"Timelines","order":8,"path":"folders/Timelines.yy",},
   ],
   "ResourceOrderSettings":[
+    {"name":"obj_cam","order":4,"path":"objects/obj_cam/obj_cam.yy",},
     {"name":"obj_wall_moveh","order":3,"path":"objects/obj_wall_moveh/obj_wall_moveh.yy",},
     {"name":"obj_wall_movev","order":2,"path":"objects/obj_wall_movev/obj_wall_movev.yy",},
     {"name":"obj_wall","order":1,"path":"objects/obj_wall/obj_wall.yy",},

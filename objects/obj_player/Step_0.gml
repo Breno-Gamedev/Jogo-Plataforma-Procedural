@@ -307,11 +307,11 @@ switch body_state
 {
 	case "parado":
 	{
-		var val = 0.5
+		var val = 0.25
 		var ty = y - seg_len * (point_count-1)
 		
 		xx = x 
-		yy = lerp(yy, ty, 0.5)
+		yy = lerp(yy, ty, val)
 		
 		var p1 = points[1]
 		var p2 = points[2]
