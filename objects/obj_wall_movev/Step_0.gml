@@ -68,7 +68,9 @@ switch estado
 			if switch_mode{
 				estado = "descendo"
 			}else{
-				obj_player.vspd = -spd * 1.25
+				if place_meeting(x,y-1,obj_player){
+					obj_player.vspd = -spd * 1.25
+				}
 				estado = "parado"
 			}
 		}
