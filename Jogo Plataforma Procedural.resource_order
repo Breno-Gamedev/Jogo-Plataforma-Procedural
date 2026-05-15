@@ -25,5 +25,6 @@
     {"name":"spr_camera","order":3,"path":"sprites/spr_camera/spr_camera.yy",},
     {"name":"spr_player","order":1,"path":"sprites/spr_player/spr_player.yy",},
     {"name":"spr_wall_move","order":2,"path":"sprites/spr_wall_move/spr_wall_move.yy",},
+    {"name":"Sprite5","order":4,"path":"sprites/Sprite5/Sprite5.yy",},
   ],
 }

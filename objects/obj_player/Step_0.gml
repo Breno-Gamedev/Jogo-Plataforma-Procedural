@@ -315,8 +315,8 @@ switch body_state
 		
 		var p1 = points[1]
 		var p2 = points[2]
-		var p3 = points[3]
-				
+		
+		//--> corpo
 		//p1
 		var p1_ty = y - seg_len
 		
@@ -324,54 +324,19 @@ switch body_state
 		p1._y = lerp(p1._y, p1_ty, val)
 		
 		//p2
-		var p2_tx = x - (seg_len/2) * move_dir
-		var p2_ty = y - seg_len / 15
+		var p2_tx = x //- (seg_len/4) * move_dir
+		var p2_ty = (y+2) - seg_len / 15
 		
 		p2._x = lerp(p2._x, p2_tx, val)
 		p2._y = lerp(p2._y, p2_ty, val)
 		
-		//p3
-		var p3_tx = x - seg_len * move_dir
 		
-		p3._x = lerp(p3._x, p3_tx, val)
-		p3._y = y
+		//--> patas
+		patas_parado()
+		
 		
 		points[1] = p1
 		points[2] = p2
-		points[3] = p3
-		
-		/*
-		//definindo lerp
-		var i = plat != noone ? 2 : 1
-		var _y = y
-		
-		var p2 = points[2]
-		
-		if plat != noone{
-			p2._x = x
-			p2._y = lerp(p2._y,y,lerp_val)
-			
-			_y = p2._y
-		}
-		
-		//ficando pra cima
-		var ty = _y - seg_len * (point_count-1) / i
-		
-		//mudando o valor do lerp de acordo
-		xx = x
-		yy = lerp(yy,ty,0.1)
-		
-		//colocando o ultimo ponto pro lado
-		var plast = points[point_count-1]
-		
-		var px = x - seg_len * move_dir
-		var py = y
-		
-		plast._x = lerp(plast._x,px,0.9)
-		plast._y = lerp(plast._y,py,0.1)
-		
-		points[point_count-1] = plast
-		points[2] = p2*/
 		break
 	}
 	
@@ -381,11 +346,14 @@ switch body_state
 		t += delta_time / 1000000
 		var tempo = 0.33 //intervalo da onda (quanto tempo dura um cilco)
 		var amplitude = 2 //amplitude da onda (altura)
-		var base_y = y// - (amplitude/3) //base onde o y vai começar
+		var base_y = y - amplitude / 1.5 //base onde o y vai começar
 		
 		//atualizando x e y
 		xx = x
 		yy = base_y + sin(t * (2 * pi / tempo)) * amplitude
+		
+		//--> patas
+		patas_andando()
 		break
 	}
 	
@@ -394,6 +362,13 @@ switch body_state
 		//atualizando x e y
 		xx = x
 		yy = y
+		
+		//--> patas
+		if hspd == 0{
+			patas_parado()
+		}else{
+			patas_andando()
+		}	
 		break
 	}
 	
@@ -401,7 +376,14 @@ switch body_state
 	{
 		//atualizando x e y
 		xx = x
-		yy = y	
+		yy = y 
+
+		//--> patas
+		if hspd == 0{
+			patas_parado()
+		}else{
+			patas_andando()
+		}	
 		break
 	}
 		
@@ -418,6 +400,10 @@ switch body_state
 			
 			p._x = lerp(p._x,xx,0.2)
 		}
+		
+
+		//--> patas
+		patas_parado()
 		break
 	}
 		
@@ -425,7 +411,10 @@ switch body_state
 	{
 		//atualizando x e y
 		xx = x
-		yy = y	
+		yy = y
+		
+		//--> patas
+		patas_parado()
 		break	
 	}
 }
