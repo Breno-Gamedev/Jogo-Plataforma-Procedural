@@ -291,7 +291,7 @@ if platv and vspd >= 0 and instv.object_index != obj_wall{
 
 //horizontal por cima
 if plath and vspd >= 0 and insth.object_index != obj_wall{
-	x += plath.hspd
+	hspd_impulse = plath.hspd
 }
 
 //horizontal pelo lado
@@ -311,7 +311,7 @@ switch body_state
 		var ty = y - seg_len * (point_count-1)
 		
 		xx = x 
-		yy = lerp(yy, ty, val)
+		yy = lerp(yy, ty, 0.5)
 		
 		var p1 = points[1]
 		var p2 = points[2]

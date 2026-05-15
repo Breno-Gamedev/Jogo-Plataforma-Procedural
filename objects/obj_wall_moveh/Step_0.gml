@@ -14,7 +14,7 @@ switch estado
 				estado = "esquerda"	
 			}
 		}
-		else if place_meeting(x+1,y,obj_player) or place_meeting(x-1,y,obj_player) 
+		else if place_meeting(x+1,y,obj_player) or place_meeting(x-1,y,obj_player) or place_meeting(x,y-1,obj_player)
 		{
 			if dir = 1{
 				estado = "direita"	
@@ -74,7 +74,7 @@ switch estado
 			if switch_mode{
 				estado = "direita"
 			}else{
-				obj_player.hspd_impulse += (spd * 2) * dir
+				obj_player.hspd = (spd * 2) * dir
 				estado = "parado"
 			}
 		}
