@@ -1,0 +1,1 @@
+draw_text(100,20,gridx)

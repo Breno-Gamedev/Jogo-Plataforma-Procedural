@@ -1,4 +1,4 @@
- /**
+/**
  * @function set_resolution
  *
  * @param {number} _design_value - The width or height of the designed resolution.
@@ -140,7 +140,7 @@ function set_camera(x1, y1, x2, y2) {
 		view_wport[0] = x2; 
 		view_hport[0] = y2; 
 	
-		view_camera[0] = camera_create_view(x1, y1, view_wport[0], view_hport[0], 0, -1, -1, -1, 0, 0);//camera_create_view(x1, y1, view_wport[0], view_hport[0], 0, obj_camera, -1, -1, (global.view_w/2), (global.view_h/2));
+		view_camera[0] = camera_create_view(x1, y1, view_wport[0], view_hport[0], 0, -1, -1, -1, 0, 0);
 }
 
 /**
