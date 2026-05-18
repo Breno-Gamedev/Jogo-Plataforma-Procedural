@@ -145,3 +145,41 @@ function patas_andando(){
 		patatd_x = x2 - 2
 		patatd_y = y2
 }
+
+function patas_caindo(){
+		var p1 = points[1]
+		var p2 = points[2]
+		
+		//-frontais
+		if abs(hspd) > 0.1{
+			var x1 = p1._x + 9 * move_dir
+		}else{
+			var x1 = p1._x
+		}
+		var y1 = yy + 2
+		
+		//esquerda
+		patafe_x = x1
+		patafe_y = y1
+		
+		//direita
+		patafd_x = x1
+		patafd_y = y1
+		
+		
+		//-tarseiras
+		if abs(hspd) > 0.1{
+			var x2 = p2._x + 8 * move_dir
+		}else{
+			var x2 = p2._x
+		}
+		var y2 = p1._y + 2
+		
+		//esquerda
+		patate_x = x2 
+		patate_y = y2
+		
+		//direita
+		patatd_x = x2
+		patatd_y = y2	
+}

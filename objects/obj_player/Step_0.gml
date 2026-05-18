@@ -365,10 +365,10 @@ switch body_state
 		
 		//--> patas
 		if hspd == 0{
-			patas_parado()
+			patas_parado()	
 		}else{
-			patas_andando()
-		}	
+			patas_caindo()
+		}
 		break
 	}
 	
@@ -380,10 +380,10 @@ switch body_state
 
 		//--> patas
 		if hspd == 0{
-			patas_parado()
+			patas_parado()	
 		}else{
-			patas_andando()
-		}	
+			patas_caindo()
+		}
 		break
 	}
 		
