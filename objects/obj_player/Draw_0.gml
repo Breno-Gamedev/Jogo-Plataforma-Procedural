@@ -37,7 +37,10 @@ draw_circle_colour(patafd_x, patafd_y, 1.75, c_white, c_white, false) //direita
 draw_circle_colour(patafe_x, patafe_y, 1, _c, _c, false) //esquerda
 draw_circle_colour(patafd_x, patafd_y, 1, _c, _c, false) //direita
 									   
-//patinhas traseiras				   
+//patinhas traseiras
+draw_circle_colour(patate_x, patate_y, 1.75, c_white, c_white, false) //esquerda
+draw_circle_colour(patatd_x, patatd_y, 1.75, c_white, c_white, false) //direita
+
 draw_circle_colour(patate_x, patate_y, 1, _c, _c, false) //esquerda
 draw_circle_colour(patatd_x, patatd_y, 1, _c, _c, false) //direita
 

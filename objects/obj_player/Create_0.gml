@@ -121,21 +121,27 @@ function patas_andando(){
 		var p2 = points[2]
 		
 		//-frontais
+		var x1 = (p1._x + 9 * move_dir) + sin(t * (2 * pi / 0.4)) * 2
+		var y1 = (y+2) + sin(t * (2 * pi / 0.33)) * 2
+		
 		//esquerda
-		patafe_x = p1._x + 6 * move_dir
-		patafe_y = y + 1
+		patafe_x = x1
+		patafe_y = y1
 		
 		//direita
-		patafd_x = p1._x + 6 * move_dir
-		patafd_y = y + 1
+		patafd_x = x1 - 2
+		patafd_y = y1
 		
 		
 		//-tarseiras
+		var x2 = (p2._x + 6 * move_dir) + sin(t * (2 * pi / 0.4)) * 2
+		var y2 = p2._y + 3
+		
 		//esquerda
-		patate_x = p2._x + 2 * move_dir
-		patate_y = y + 1
+		patate_x = x2
+		patate_y = y2
 		
 		//direita
-		patatd_x = p2._x + 2 * move_dir
-		patatd_y = y + 1
+		patatd_x = x2 - 2
+		patatd_y = y2
 }
